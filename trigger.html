@@ -1,19 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Trigger Alert</title>
-</head>
-<body>
-    <button onclick="trigger()">Send Alert</button>
-    <script>
-        // Βάλε εδώ το Render WebSocket URL σου
-        let ws = new WebSocket("https://websocket-server-np3m.onrender.com");
+<script>
+const WS_URL = "https://websocket-server-np3m.onrender.com/";
+let ws = null;
 
-        function trigger() {
-            ws.send("TRIGGER");
-        }
-    </script>
-</body>
-</html>
+function connectWebSocket() {
+    ws = new WebSocket(WS_URL);
 
+    ws.onopen = () => console.log("Trigger connected");
 
+    ws.onclose = () => {
+        console.log("Trigger disconnected, retrying in 2s...");
+        setTimeout(connectWebSocket, 500); // reconnect
+    };
+
+    ws.onerror = (err) => {
+        console.error("WebSocket error:", err);
+        ws.close();
+    };
+}
+
+connectWebSocket();
+
+// Όταν πατάς το κουμπί
+function sendAlert() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send("ALERT");
+    } else {
+        console.log("WebSocket not connected, alert not sent");
+    }
+}
+</script>
