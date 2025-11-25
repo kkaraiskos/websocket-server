@@ -41,7 +41,7 @@
 
             ws.onclose = () => {
                 console.log("WebSocket closed, retrying in 2 seconds...");
-                setTimeout(connectWebSocket, 2000); // reconnect
+                setTimeout(connectWebSocket, 500); // reconnect
             };
         }
 
@@ -49,4 +49,5 @@
     </script>
 </body>
 </html>
+
 
