@@ -1,5 +1,5 @@
 function connectWS() {
-    let ws = new WebSocket("wss://your-server-url");
+    let ws = new WebSocket("https://websocket-server-np3m.onrender.com");
 
     ws.onopen = () => console.log("Connected");
 
@@ -14,7 +14,7 @@ function connectWS() {
 
     ws.onclose = () => {
         console.log("Disconnected, retrying in 2s...");
-        setTimeout(connectWS, 2000); // Προσπάθεια reconnect κάθε 2 δευτερόλεπτα
+        setTimeout(connectWS, 1000); // Προσπάθεια reconnect κάθε 2 δευτερόλεπτα
     };
 
     ws.onerror = (err) => {
@@ -25,3 +25,4 @@ function connectWS() {
 
 // Εκκίνηση WebSocket
 connectWS();
+
