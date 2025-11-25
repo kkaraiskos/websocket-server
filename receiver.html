@@ -1,29 +1,51 @@
-function connectWS() {
-    let ws = new WebSocket("https://websocket-server-np3m.onrender.com");
-
-    ws.onopen = () => console.log("Connected");
-
-    ws.onmessage = (event) => {
-        if (event.data === "ALERT") {
-            document.body.style.backgroundColor = "green";
-            setTimeout(() => {
-                document.body.style.backgroundColor = "white";
-            }, 3000);
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receiver</title>
+    <style>
+        body {
+            background-color: white;
+            transition: background-color 0.3s;
         }
-    };
+    </style>
+</head>
+<body>
+    <script>
+        const WS_URL = "wss://websocket-server-8ack.onrender.com"; // βάλε εδώ το σωστό URL
+        let ws = null;
+        let resetTimeout = null;
 
-    ws.onclose = () => {
-        console.log("Disconnected, retrying in 2s...");
-        setTimeout(connectWS, 2000); // Προσπάθεια reconnect κάθε 2 δευτερόλεπτα
-    };
+        function connectWebSocket() {
+            ws = new WebSocket(WS_URL);
 
-    ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
-        ws.close();
-    };
-}
+            ws.onopen = () => {
+                console.log("Receiver connected");
+            };
 
-// Εκκίνηση WebSocket
-connectWS();
+            ws.onmessage = (event) => {
+                if (event.data === "ALERT") {
+                    document.body.style.backgroundColor = "green";
 
+                    if (resetTimeout) clearTimeout(resetTimeout);
+                    resetTimeout = setTimeout(() => {
+                        document.body.style.backgroundColor = "white";
+                        resetTimeout = null;
+                    }, 3000);
+                }
+            };
 
+            ws.onerror = (err) => {
+                console.error("WebSocket error:", err);
+                ws.close();
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket closed, retrying in 2 seconds...");
+                setTimeout(connectWebSocket, 2000); // reconnect
+            };
+        }
+
+        connectWebSocket();
+    </script>
+</body>
+</html>
