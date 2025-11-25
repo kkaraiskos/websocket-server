@@ -1,17 +1,36 @@
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
 const WebSocket = require("ws");
+
 const PORT = process.env.PORT || 8080;
 
-const wss = new WebSocket.Server({ port: PORT });
-console.log(`WebSocket server running on port ${PORT}`);
+const server = http.createServer((req, res) => {
+    let filePath = "." + req.url;
+    if (filePath === "./") filePath = "./trigger.html";
 
-wss.on("connection", (ws) => {
+    const ext = path.extname(filePath);
+    const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css" };
+    const contentType = types[ext] || "text/plain";
+
+    fs.readFile(filePath, (err, data) => {
+        if (err) {
+            res.writeHead(404);
+            res.end("Not found");
+        } else {
+            res.writeHead(200, { "Content-Type": contentType });
+            res.end(data);
+        }
+    });
+});
+
+const wss = new WebSocket.Server({ server });
+
+wss.on("connection", ws => {
     console.log("Client connected");
 
-    ws.on("message", (msg) => {
+    ws.on("message", msg => {
         if (msg.toString() === "TRIGGER") {
-            console.log("Alert triggered");
-
-            // Στέλνουμε ALERT σε όλους τους συνδεδεμένους clients
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
                     client.send("ALERT");
@@ -20,3 +39,5 @@ wss.on("connection", (ws) => {
         }
     });
 });
+
+server.listen(PORT, () => console.log("Server running on " + PORT));
