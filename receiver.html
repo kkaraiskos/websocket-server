@@ -1,41 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Receiver</title>
-    <style>
-        body {
-            background-color: white;
-            transition: background-color 0.3s;
+function connectWS() {
+    let ws = new WebSocket("wss://your-server-url");
+
+    ws.onopen = () => console.log("Connected");
+
+    ws.onmessage = (event) => {
+        if (event.data === "ALERT") {
+            document.body.style.backgroundColor = "green";
+            setTimeout(() => {
+                document.body.style.backgroundColor = "white";
+            }, 3000);
         }
-    </style>
-</head>
-<body>
-    <script>
-        // Σωστό WebSocket URL με wss:// για Render
-        let ws = new WebSocket("https://websocket-server-np3m.onrender.com");
-        let resetTimeout = null;
+    };
 
-        ws.onopen = () => console.log("Receiver connected");
+    ws.onclose = () => {
+        console.log("Disconnected, retrying in 2s...");
+        setTimeout(connectWS, 2000); // Προσπάθεια reconnect κάθε 2 δευτερόλεπτα
+    };
 
-        ws.onmessage = (event) => {
-            if (event.data === "ALERT") {
-                // Κάνουμε την οθόνη πράσινη
-                document.body.style.backgroundColor = "green";
+    ws.onerror = (err) => {
+        console.error("WebSocket error:", err);
+        ws.close();
+    };
+}
 
-                // Καθαρίζουμε προηγούμενο timeout αν υπάρχει
-                if (resetTimeout) clearTimeout(resetTimeout);
-
-                // Μετά από 3 δευτερόλεπτα επαναφέρουμε σε λευκό
-                resetTimeout = setTimeout(() => {
-                    document.body.style.backgroundColor = "white";
-                    resetTimeout = null;
-                }, 3000);
-            }
-        };
-
-        ws.onerror = (err) => console.error("WebSocket error:", err);
-    </script>
-</body>
-</html>
-
-
+// Εκκίνηση WebSocket
+connectWS();
