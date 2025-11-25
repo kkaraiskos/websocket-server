@@ -1,31 +1,63 @@
-<script>
-const WS_URL = "https://websocket-server-np3m.onrender.com/";
-let ws = null;
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trigger Alert</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="sendAlert()">Send Alert</button>
 
-function connectWebSocket() {
-    ws = new WebSocket(WS_URL);
+    <script>
+        const WS_URL = "wss://websocket-server-np3m.onrender.com"; // σωστό WebSocket URL
+        let ws = null;
 
-    ws.onopen = () => console.log("Trigger connected");
+        function connectWebSocket() {
+            ws = new WebSocket(WS_URL);
 
-    ws.onclose = () => {
-        console.log("Trigger disconnected, retrying in 2s...");
-        setTimeout(connectWebSocket, 500); // reconnect
-    };
+            ws.onopen = () => console.log("Trigger connected");
 
-    ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
-        ws.close();
-    };
-}
+            ws.onclose = () => {
+                console.log("Trigger disconnected, retrying in 2s...");
+                setTimeout(connectWebSocket, 2000);
+            };
 
-connectWebSocket();
+            ws.onerror = (err) => {
+                console.error("WebSocket error:", err);
+                ws.close();
+            };
+        }
 
-// Όταν πατάς το κουμπί
-function sendAlert() {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send("ALERT");
-    } else {
-        console.log("WebSocket not connected, alert not sent");
-    }
-}
-</script>
+        connectWebSocket();
+
+        function sendAlert() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send("TRIGGER"); // στέλνουμε το trigger μήνυμα
+                console.log("Alert sent!");
+            } else {
+                console.log("WebSocket not connected, alert not sent");
+            }
+        }
+    </script>
+</body>
+</html>
