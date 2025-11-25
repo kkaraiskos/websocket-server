@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trigger Alert</title>
+</head>
+<body>
+    <button onclick="trigger()">Send Alert</button>
+    <script>
+        // Βάλε εδώ το Render WebSocket URL σου
+        let ws = new WebSocket("https://websocket-server-8ack.onrender.com");
+
+        function trigger() {
+            ws.send("TRIGGER");
+        }
+    </script>
+</body>
+</html>

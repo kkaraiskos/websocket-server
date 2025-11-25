@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receiver</title>
+    <style>
+        body {
+            background-color: white;
+            transition: background-color 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Σωστό WebSocket URL με wss:// για Render
+        let ws = new WebSocket("wss://websocket-server-8ack.onrender.com");
+        let resetTimeout = null;
+
+        ws.onopen = () => console.log("Receiver connected");
+
+        ws.onmessage = (event) => {
+            if (event.data === "ALERT") {
+                // Κάνουμε την οθόνη πράσινη
+                document.body.style.backgroundColor = "green";
+
+                // Καθαρίζουμε προηγούμενο timeout αν υπάρχει
+                if (resetTimeout) clearTimeout(resetTimeout);
+
+                // Μετά από 3 δευτερόλεπτα επαναφέρουμε σε λευκό
+                resetTimeout = setTimeout(() => {
+                    document.body.style.backgroundColor = "white";
+                    resetTimeout = null;
+                }, 3000);
+            }
+        };
+
+        ws.onerror = (err) => console.error("WebSocket error:", err);
+    </script>
+</body>
+</html>
