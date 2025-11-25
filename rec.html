@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Receiver</title>
+    <style>
+        body {
+            background-color: white;
+            transition: background-color 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const WS_URL = "https://websocket-server-np3m.onrender.com"; // βάλε εδώ το σωστό URL
+        let ws = null;
+        let resetTimeout = null;
+
+        function connectWebSocket() {
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                console.log("Receiver connected");
+            };
+
+            ws.onmessage = (event) => {
+                if (event.data === "ALERT") {
+                    document.body.style.backgroundColor = "green";
+
+                    if (resetTimeout) clearTimeout(resetTimeout);
+                    resetTimeout = setTimeout(() => {
+                        document.body.style.backgroundColor = "white";
+                        resetTimeout = null;
+                    }, 3000);
+                }
+            };
+
+            ws.onerror = (err) => {
+                console.error("WebSocket error:", err);
+                ws.close();
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket closed, retrying in 2 seconds...");
+                setTimeout(connectWebSocket, 2000); // reconnect
+            };
+        }
+
+        connectWebSocket();
+    </script>
+</body>
+</html>
